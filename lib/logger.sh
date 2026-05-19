@@ -74,7 +74,8 @@ _output_log() {
     
     if [[ -n "$LOG_FILE" ]]; then
         # Strip ANSI color codes before writing to file
-        local clean_message=$(echo -e "$message" | sed 's/\x1b\[[0-9;]*m//g')
+        local clean_message
+        clean_message=$(echo -e "$message" | sed 's/\x1b\[[0-9;]*m//g')
         echo "$clean_message" >> "$LOG_FILE" 2>/dev/null || true
     fi
 }
@@ -87,7 +88,8 @@ log_info() {
     local message="$1"
     
     if _should_log "INFO"; then
-        local timestamp=$(_get_timestamp)
+        local timestamp
+        timestamp=$(_get_timestamp)
         local formatted="${COLOR_GREEN}[${timestamp}]${COLOR_RESET} [INFO] ${message}"
         _output_log "$formatted"
     fi
@@ -101,7 +103,8 @@ log_warn() {
     local message="$1"
     
     if _should_log "WARN"; then
-        local timestamp=$(_get_timestamp)
+        local timestamp
+        timestamp=$(_get_timestamp)
         local formatted="${COLOR_YELLOW}[${timestamp}]${COLOR_RESET} [WARN] ${message}"
         _output_log "$formatted"
     fi
@@ -115,7 +118,8 @@ log_error() {
     local message="$1"
     
     if _should_log "ERROR"; then
-        local timestamp=$(_get_timestamp)
+        local timestamp
+        timestamp=$(_get_timestamp)
         local formatted="${COLOR_RED}[${timestamp}]${COLOR_RESET} [ERROR] ${message}"
         _output_log "$formatted"
     fi
@@ -129,7 +133,8 @@ log_debug() {
     local message="$1"
     
     if _should_log "DEBUG"; then
-        local timestamp=$(_get_timestamp)
+        local timestamp
+        timestamp=$(_get_timestamp)
         local formatted="${COLOR_BLUE}[${timestamp}]${COLOR_RESET} [DEBUG] ${message}"
         _output_log "$formatted"
     fi
@@ -141,7 +146,8 @@ log_debug() {
 ################################################################################
 log_section() {
     local header="$1"
-    local line=$(printf '=%.0s' {1..80})
+    local line
+    line=$(printf '=%.0s' {1..80})
     
     _output_log "\n${COLOR_BLUE}${line}${COLOR_RESET}"
     _output_log "${COLOR_BLUE}${header}${COLOR_RESET}"

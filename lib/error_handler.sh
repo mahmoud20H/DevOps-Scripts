@@ -21,6 +21,7 @@ set -euo pipefail
 
 # Source logger if not already sourced
 if ! declare -f log_error > /dev/null; then
+    # shellcheck source=lib/logger.sh
     source "$(dirname "${BASH_SOURCE[0]}")/logger.sh"
 fi
 
