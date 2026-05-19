@@ -1,0 +1,34 @@
+name: Security and Linting
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  shell-check:
+    name: Shell-Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Shell-Check
+        run: find . -type f -name "*.sh" -exec shellcheck -x {} +
+
+  trivy-misconfig:
+    name: Trivy Misconfiguration Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          scanners: 'misconfig'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '1'
