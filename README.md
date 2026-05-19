@@ -12,7 +12,7 @@ DevOps-Scripts/
 ├── lib/                        # Shared libraries (sourced, never executed)
 │   ├── strict_mode.sh          # Unofficial Bash Strict Mode
 │   └── logger.sh               # Timestamped, levelled logging (INFO/WARN/ERROR/DEBUG)
-│   └── error-handler.sh        # Error handling and cleanup utilities
+│   └── error_handler.sh        # Error handling and cleanup utilities
 │
 ├── conf/                       # Configurations
 │
