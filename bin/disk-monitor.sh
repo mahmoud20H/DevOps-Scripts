@@ -7,8 +7,8 @@ export LOG_LEVEL="WARN"
 
 # 1. Source the shared libraries Antigravity built
 source "$(dirname "$0")/../lib/logger.sh"
-source "$(dirname "$0")/../lib/error-handler.sh"
-source "$(dirname "$0")/../lib/strict-mode.sh"
+source "$(dirname "$0")/../lib/error_handler.sh"
+source "$(dirname "$0")/../lib/strict_mode.sh"
 
 
 # 2. Activate the error safety net
