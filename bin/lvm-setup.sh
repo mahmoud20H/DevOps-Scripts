@@ -276,38 +276,44 @@ validate_disk() {
 }
 
 # =============================================================================
-# FUNCTION: collect_lvm_config
-# Interactively prompts the user for LVM parameters.
-# Pre-fills prompts using defaults if a config file was loaded.
+# FUNCTION: _prompt_new_vg_name
+# Prompts the user for a new Volume Group name with validation.
+# Sets the global VG_NAME variable.
 # =============================================================================
-collect_lvm_config() {
-    log_section "LVM Configuration"
-
-    # ── Volume Group name ─────────────────────────────────────────────────
+_prompt_new_vg_name() {
     while true; do
-        read -e -i "${DEFAULT_VG_NAME:-vg_data}" -p "Enter Volume Group (VG) name: " VG_NAME
+        read -e -i "${DEFAULT_VG_NAME:-vg_data}" -p "Enter new Volume Group (VG) name: " VG_NAME
 
         if [[ -z "${VG_NAME}" ]]; then
             log_error "VG name cannot be empty"
             continue
         fi
 
+        # VG names must be valid identifiers (alphanumeric, hyphens, underscores)
         if [[ ! "${VG_NAME}" =~ ^[a-zA-Z][a-zA-Z0-9_-]*$ ]]; then
             log_error "VG name must start with a letter and contain only [a-zA-Z0-9_-]"
             continue
         fi
 
+        # Ensure the name doesn't collide with an existing VG
         if vgs "${VG_NAME}" &>/dev/null; then
             log_error "Volume Group '${VG_NAME}' already exists. Choose a different name."
             continue
         fi
+
         break
     done
-    log_info "Volume Group name: ${VG_NAME}"
+    log_info "New Volume Group name: ${VG_NAME}"
+}
 
-    # ── Logical Volume name ───────────────────────────────────────────────
+# =============================================================================
+# FUNCTION: _prompt_new_lv_name
+# Prompts the user for a new Logical Volume name with validation.
+# Sets the global LV_NAME variable.
+# =============================================================================
+_prompt_new_lv_name() {
     while true; do
-        read -e -i "${DEFAULT_LV_NAME:-lv_data}" -p "Enter Logical Volume (LV) name: " LV_NAME
+        read -e -i "${DEFAULT_LV_NAME:-lv_data}" -p "Enter new Logical Volume (LV) name: " LV_NAME
 
         if [[ -z "${LV_NAME}" ]]; then
             log_error "LV name cannot be empty"
@@ -318,9 +324,154 @@ collect_lvm_config() {
             log_error "LV name must start with a letter and contain only [a-zA-Z0-9_-]"
             continue
         fi
+
+        # If we have an existing VG, check for name collisions within it
+        if [[ -n "${VG_NAME:-}" ]] && lvs "${VG_NAME}/${LV_NAME}" &>/dev/null; then
+            log_error "Logical Volume '${LV_NAME}' already exists in VG '${VG_NAME}'. Choose a different name."
+            continue
+        fi
+
         break
     done
-    log_info "Logical Volume name: ${LV_NAME}"
+    log_info "New Logical Volume name: ${LV_NAME}"
+}
+
+# =============================================================================
+# FUNCTION: collect_lvm_config
+# Interactively prompts the user for LVM parameters.
+# Pre-fills prompts using defaults if a config file was loaded.
+# Sets VG_IS_NEW=true when a brand-new VG is being created, false when reusing.
+# =============================================================================
+collect_lvm_config() {
+    log_section "LVM Configuration"
+
+    # Track whether the user is creating a new VG or reusing an existing one.
+    # This determines whether create_lvm calls vgcreate vs vgextend.
+    VG_IS_NEW=true
+
+    # ── Volume Group selection ────────────────────────────────────────────
+    # Discover existing Volume Groups on the system
+    local existing_vgs=()
+    mapfile -t existing_vgs < <(vgs --noheadings -o vg_name 2>/dev/null | awk '{print $1}')
+
+    if [[ ${#existing_vgs[@]} -gt 0 ]]; then
+        # ── Show a numbered menu: existing VGs + "Create new" ─────────────
+        log_info "Existing Volume Groups detected on this system:"
+        echo ""
+        echo "  ┌────────────────────────────────────────────────────────┐"
+        echo "  │  #   Volume Group       Size       Free               │"
+        echo "  ├────────────────────────────────────────────────────────┤"
+
+        local idx=1
+        for vg in "${existing_vgs[@]}"; do
+            local vg_size vg_free
+            vg_size=$(vgs --noheadings --nosuffix --units g -o vg_size "${vg}" 2>/dev/null | awk '{printf "%.1fG", $1}')
+            vg_free=$(vgs --noheadings --nosuffix --units g -o vg_free "${vg}" 2>/dev/null | awk '{printf "%.1fG", $1}')
+            printf "  │  %-4s%-20s%-11s%-15s│\n" "${idx})" "${vg}" "${vg_size}" "${vg_free}"
+            (( idx++ ))
+        done
+
+        printf "  │  %-4s%-46s│\n" "${idx})" "✚ Create a new Volume Group"
+        echo "  └────────────────────────────────────────────────────────┘"
+        echo ""
+
+        local create_new_option="${idx}"
+
+        while true; do
+            read -r -p "Select an option [1-${create_new_option}]: " vg_choice
+
+            # Validate the input is a number in range
+            if [[ ! "${vg_choice}" =~ ^[0-9]+$ ]] || \
+               [[ "${vg_choice}" -lt 1 ]] || \
+               [[ "${vg_choice}" -gt "${create_new_option}" ]]; then
+                log_error "Invalid selection. Enter a number between 1 and ${create_new_option}"
+                continue
+            fi
+
+            if [[ "${vg_choice}" -eq "${create_new_option}" ]]; then
+                # User wants to create a new VG
+                VG_IS_NEW=true
+                _prompt_new_vg_name
+            else
+                # User selected an existing VG
+                VG_NAME="${existing_vgs[$(( vg_choice - 1 ))]}"
+                VG_IS_NEW=false
+                log_info "Using existing Volume Group: ${VG_NAME}"
+            fi
+            break
+        done
+    else
+        # No existing VGs — go straight to creating a new one
+        log_info "No existing Volume Groups found — creating a new one"
+        VG_IS_NEW=true
+        _prompt_new_vg_name
+    fi
+
+    # ── Logical Volume selection ──────────────────────────────────────────
+    if [[ "${VG_IS_NEW}" == false ]]; then
+        # The user picked an existing VG — show its LVs and offer choices
+        local existing_lvs=()
+        mapfile -t existing_lvs < <(lvs --noheadings -o lv_name "${VG_NAME}" 2>/dev/null | awk '{print $1}')
+
+        if [[ ${#existing_lvs[@]} -gt 0 ]]; then
+            log_info "Existing Logical Volumes in '${VG_NAME}':"
+            echo ""
+            echo "  ┌──────────────────────────────────────────────────────┐"
+            echo "  │  #   Logical Volume       Size       Path           │"
+            echo "  ├──────────────────────────────────────────────────────┤"
+
+            local lv_idx=1
+            for lv in "${existing_lvs[@]}"; do
+                local lv_size lv_path
+                lv_size=$(lvs --noheadings --nosuffix --units g -o lv_size "${VG_NAME}/${lv}" 2>/dev/null | awk '{printf "%.1fG", $1}')
+                lv_path="/dev/${VG_NAME}/${lv}"
+                printf "  │  %-4s%-22s%-11s%-13s│\n" "${lv_idx})" "${lv}" "${lv_size}" "${lv_path}"
+                (( lv_idx++ ))
+            done
+
+            printf "  │  %-4s%-48s│\n" "${lv_idx})" "✚ Create a new Logical Volume"
+            echo "  └──────────────────────────────────────────────────────┘"
+            echo ""
+
+            local lv_create_option="${lv_idx}"
+
+            while true; do
+                read -r -p "Select an option [1-${lv_create_option}]: " lv_choice
+
+                if [[ ! "${lv_choice}" =~ ^[0-9]+$ ]] || \
+                   [[ "${lv_choice}" -lt 1 ]] || \
+                   [[ "${lv_choice}" -gt "${lv_create_option}" ]]; then
+                    log_error "Invalid selection. Enter a number between 1 and ${lv_create_option}"
+                    continue
+                fi
+
+                if [[ "${lv_choice}" -eq "${lv_create_option}" ]]; then
+                    # Create a new LV
+                    _prompt_new_lv_name
+                else
+                    # Selected an existing LV — warn that it's already provisioned
+                    LV_NAME="${existing_lvs[$(( lv_choice - 1 ))]}"
+                    log_warn "Logical Volume '${LV_NAME}' already exists in VG '${VG_NAME}'"
+                    log_warn "If you proceed, the script will attempt to format and mount it"
+                    read -r -p "Are you sure you want to re-use this LV? (y/n): " reuse_confirm
+                    if [[ "${reuse_confirm}" != "y" && "${reuse_confirm}" != "Y" ]]; then
+                        continue
+                    fi
+                    log_info "Re-using existing Logical Volume: ${LV_NAME}"
+                fi
+                break
+            done
+        else
+            log_info "No Logical Volumes found in '${VG_NAME}' — creating a new one"
+            _prompt_new_lv_name
+        fi
+    else
+        # New VG — always create a new LV
+        _prompt_new_lv_name
+    fi
+
+    log_info "Volume Group:   ${VG_NAME} $(if [[ "${VG_IS_NEW}" == true ]]; then echo '(new)'; else echo '(existing)'; fi)"
+    log_info "Logical Volume: ${LV_NAME}"
 
     # ── Logical Volume size ───────────────────────────────────────────────
     while true; do
@@ -419,10 +570,16 @@ create_lvm() {
     pvcreate --force "${SELECTED_DISK}"
     log_info "Physical Volume created successfully"
 
-    # ── Step 3: Create Volume Group ───────────────────────────────────────
-    log_info "Creating Volume Group '${VG_NAME}' on '${SELECTED_DISK}'..."
-    vgcreate "${VG_NAME}" "${SELECTED_DISK}"
-    log_info "Volume Group '${VG_NAME}' created successfully"
+    # ── Step 3: Create or extend Volume Group ─────────────────────────────
+    if [[ "${VG_IS_NEW}" == true ]]; then
+        log_info "Creating new Volume Group '${VG_NAME}' on '${SELECTED_DISK}'..."
+        vgcreate "${VG_NAME}" "${SELECTED_DISK}"
+        log_info "Volume Group '${VG_NAME}' created successfully"
+    else
+        log_info "Extending existing Volume Group '${VG_NAME}' with '${SELECTED_DISK}'..."
+        vgextend "${VG_NAME}" "${SELECTED_DISK}"
+        log_info "Volume Group '${VG_NAME}' extended successfully"
+    fi
 
     # ── Step 4: Create Logical Volume ─────────────────────────────────────
     log_info "Creating Logical Volume '${LV_NAME}' (size: ${LV_SIZE})..."
