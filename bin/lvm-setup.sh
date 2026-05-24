@@ -35,10 +35,9 @@ readonly SCRIPT_DIR
 # Unofficial Bash Strict Mode
 set -euo pipefail
 
-# Source shared libraries using the correct filenames (underscores, not hyphens)
-# shellcheck source=../lib/logger.sh
+# shellcheck source=/dev/null disable=SC1091
 source "${SCRIPT_DIR}/../lib/logger.sh"
-# shellcheck source=../lib/error_handler.sh
+# shellcheck source=/dev/null disable=SC1091
 source "${SCRIPT_DIR}/../lib/error_handler.sh"
 
 # Install error traps and exit handlers from the shared error_handler library
@@ -282,7 +281,7 @@ validate_disk() {
 # =============================================================================
 _prompt_new_vg_name() {
     while true; do
-        read -e -i "${DEFAULT_VG_NAME:-vg_data}" -p "Enter new Volume Group (VG) name: " VG_NAME
+        read -r -e -i "${DEFAULT_VG_NAME:-vg_data}" -p "Enter new Volume Group (VG) name: " VG_NAME
 
         if [[ -z "${VG_NAME}" ]]; then
             log_error "VG name cannot be empty"
@@ -313,7 +312,7 @@ _prompt_new_vg_name() {
 # =============================================================================
 _prompt_new_lv_name() {
     while true; do
-        read -e -i "${DEFAULT_LV_NAME:-lv_data}" -p "Enter new Logical Volume (LV) name: " LV_NAME
+        read -r -e -i "${DEFAULT_LV_NAME:-lv_data}" -p "Enter new Logical Volume (LV) name: " LV_NAME
 
         if [[ -z "${LV_NAME}" ]]; then
             log_error "LV name cannot be empty"
@@ -475,7 +474,7 @@ collect_lvm_config() {
 
     # ── Logical Volume size ───────────────────────────────────────────────
     while true; do
-        read -e -i "${DEFAULT_LV_SIZE:-100%FREE}" -p "Enter LV size (e.g., 10G, 500M, or 100%FREE): " LV_SIZE
+        read -r -e -i "${DEFAULT_LV_SIZE:-100%FREE}" -p "Enter LV size (e.g., 10G, 500M, or 100%FREE): " LV_SIZE
 
         if [[ -z "${LV_SIZE}" ]]; then
             log_error "LV size cannot be empty"
@@ -492,7 +491,7 @@ collect_lvm_config() {
 
     # ── Filesystem type ───────────────────────────────────────────────────
     while true; do
-        read -e -i "${DEFAULT_FS_TYPE:-ext4}" -p "Enter filesystem type (ext4 or xfs): " FS_TYPE
+        read -r -e -i "${DEFAULT_FS_TYPE:-ext4}" -p "Enter filesystem type (ext4 or xfs): " FS_TYPE
         FS_TYPE="${FS_TYPE,,}"
 
         local valid=false
@@ -510,7 +509,7 @@ collect_lvm_config() {
 
     # ── Mount point ───────────────────────────────────────────────────────
     while true; do
-        read -e -i "${DEFAULT_MOUNT_POINT:-/mnt/data}" -p "Enter mount point path (e.g., /mnt/data): " MOUNT_POINT
+        read -r -e -i "${DEFAULT_MOUNT_POINT:-/mnt/data}" -p "Enter mount point path (e.g., /mnt/data): " MOUNT_POINT
 
         if [[ -z "${MOUNT_POINT}" ]]; then
             log_error "Mount point cannot be empty"
@@ -679,9 +678,11 @@ persist_mount() {
     log_info "  ${fstab_entry}"
 
     # Use tee -a to append; ensures we see it in the log
-    echo "" >> "${FSTAB}"
-    echo "# LVM volume: ${VG_NAME}/${LV_NAME} — added by lvm-setup.sh on ${timestamp}" >> "${FSTAB}"
-    echo "${fstab_entry}" >> "${FSTAB}"
+    {
+        echo ""
+        echo "# LVM volume: ${VG_NAME}/${LV_NAME} — added by lvm-setup.sh on ${timestamp}"
+        echo "${fstab_entry}"
+    } >> "${FSTAB}"
 
     log_info "fstab updated successfully"
 

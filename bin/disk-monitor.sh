@@ -6,8 +6,11 @@ set -euo pipefail
 export LOG_LEVEL="WARN"
 
 # 1. Source the shared libraries Antigravity built
+# shellcheck source=/dev/null disable=SC1091
 source "$(dirname "$0")/../lib/logger.sh"
+# shellcheck source=/dev/null disable=SC1091
 source "$(dirname "$0")/../lib/error_handler.sh"
+# shellcheck source=/dev/null disable=SC1091
 source "$(dirname "$0")/../lib/strict_mode.sh"
 
 
@@ -19,6 +22,7 @@ CONFIG_FILE="${1:-conf/disk-monitor.conf}"
 if [[ ! -f "$CONFIG_FILE" ]]; then
     die "Configuration file missing: $CONFIG_FILE" 1
 fi
+# shellcheck source=/dev/null disable=SC1090
 source "$CONFIG_FILE"
 
 log_section "Disk Monitor Started"
