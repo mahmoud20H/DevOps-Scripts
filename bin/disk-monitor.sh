@@ -5,7 +5,7 @@ set -euo pipefail
 # Force log level to WARN 
 export LOG_LEVEL="WARN"
 
-# 1. Source the shared libraries Antigravity built
+# 1. Source the shared libraries
 # shellcheck source=/dev/null disable=SC1091
 source "$(dirname "$0")/../lib/logger.sh"
 # shellcheck source=/dev/null disable=SC1091
