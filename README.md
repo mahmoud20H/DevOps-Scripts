@@ -10,6 +10,8 @@ DevOps-Scripts/
 ├── bin/                       # Executable scripts 
 │   ├── disk-monitor.sh                 # script for disk monitor checks
 │   ├── lvm-setup.sh                    # script for Interactive LVM (Logical Volume Management) Automation
+│   └── user-management.sh              # Interactive user, group, and permission management
+|
 ├── lib/                       # Shared libraries (sourced, never executed)
 │   ├── strict_mode.sh                  # Unofficial Bash Strict Mode
 │   └── logger.sh                       # Timestamped, levelled logging (INFO/WARN/ERROR/DEBUG)
@@ -18,9 +20,11 @@ DevOps-Scripts/
 ├── conf/                       # Configurations
 │   └── disk-monitor.conf               # Disk Monitor Default Configuration to pass the values in it
 │   └── lvm-setup.conf                  # LVM Setup Default Configuration, These values will pre-fill the interactive prompts.
+│   └── user-management.conf            # Default shells and admin group definitions
 |
 ├── tests/                      # test suites
 │   └── test-disk-monitor.bats          # automated script for test bash disk-monitor script
+│   └── test-user-management.bats       # Root privilege and syntax checks for user management
 │
 ├── .github/workflows/          # CI/CD pipelines
 │   └── security-lint.yml               # GitHub Actions workflow for shellcheck & Misconfiguration Scan
