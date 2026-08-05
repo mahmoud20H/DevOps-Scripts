@@ -22,6 +22,10 @@ DevOps-Scripts/
 │   └── lvm-setup.conf                  # LVM Setup Default Configuration, These values will pre-fill the interactive prompts.
 │   └── user-management.conf            # Default shells and admin group definitions
 |
+├── python_scripts/             # Python utility and monitoring scripts
+│   ├── check_servers.py                # Server health monitor and AWS SNS status notification script
+│   └── password_generator.py           # Interactive random password generator tool
+|
 ├── tests/                      # test suites
 │   └── test-disk-monitor.bats          # automated script for test bash disk-monitor script
 │   └── test-user-management.bats       # Root privilege and syntax checks for user management
