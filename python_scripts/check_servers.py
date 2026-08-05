@@ -56,8 +56,6 @@ def send_message(subject, body):
     Returns:
         dict: The response from the SNS publish operation
     """
-    # Initialize SNS client to interact with AWS SNS service
-    sns_client = boto3.client('sns', region_name=AWS_REGION)
 
     # Publish the message to the specified SNS topic with subject and body
     response = sns_client.publish(
