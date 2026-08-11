@@ -65,14 +65,49 @@ Failure after retries?
 ### 2. Random Password Generator (`password_generator.py`)
 
 *   **File**: [password_generator.py]
-*   **Why It's Used**: Generates highly secure, randomized passwords based on user-defined criteria. It helps DevOps engineers and system administrators quickly generate secure temporary passwords for new users, databases, or services.
+*   **Why It's Used**: Generates highly secure, randomized passwords based on user-defined criteria. 
+    It helps DevOps engineers and system administrators quickly generate secure temporary passwords for new users, databases, or services.
 *   **How to Use**:
     1.  Run the script in your terminal:
         ```bash
-        python python_scripts/password_generator.py
+        python3 python_scripts/password_generator.py
         ```
     2.  Respond to the interactive prompts:
         *   *How many letters would you like in your password?*
         *   *How many symbols would you like?*
         *   *How many numbers would you like?*
     3.  The script will output a randomized, secure password using a mixture of upper/lowercase letters, digits, and special characters.
+---
+
+### 3. Linux System Information Script (`system_info.py`)
+*   **File**: [system_info.py]
+
+*   **Why It's Used**: Collects and reports detailed system information for Linux machines. 
+    This script helps DevOps engineers, system administrators, and learners quickly gather essential data about their environment — including system basics, hardware specs, uptime, and networking details — without manually running multiple commands.
+
+*   **How to Use**:
+    1.  Run the script in your terminal:
+        - To install psutil if not already installed `sudo apt install python3-psutil` OR
+            `pip3 install psutil`
+            ```bash  
+            python3 system_info.py
+            ```
+    
+    2.  The script will print system information to the terminal and also save it into a file named system_info1.txt.
+    
+    3.  If system_info1.txt already exists, the script will automatically create system_info2.txt, system_info3.txt, and so on, ensuring 
+        no data is overwritten.
+    
+    4. Each file contains a snapshot of your system at the time of execution, including:
+        - System Basics: Hostname, current user, OS, kernel version
+        - Hardware Info: CPU model, core count, memory usage, disk usage
+        - System Status: Uptime, load average, running processes count
+        - Networking Info: IP address, active interfaces, open ports
+
+*   **Security Improvements**:
+    -  This script is already functional, but here are some enhancements you could add to make it more powerful and professional:
+    
+    1. Formatted Output: Use libraries like tabulate or rich to display results in tables with colors for readability.
+    2. Command-Line Options: Add flags (via argparse) so users can choose which section to run, e.g. --network or --hardware.
+    3. Logging: Save outputs not only to text files but also to a structured log format (JSON or CSV) for easier parsing.
+    4. Monitoring Mode: Add a scheduler to run the script periodically and track changes in system status over time.
