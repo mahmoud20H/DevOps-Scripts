@@ -1,3 +1,11 @@
+# ----------------------------------------------------------------------------------------------------------------# 
+# This script for system information collection and monitoring.
+# It gathers system basics, hardware info, system status, and networking info.
+# ----------------------------------------------------------------------------------------------------------------#
+
+# ----------------------------------------------------------------------------------------------------------------#
+# Imports
+# ----------------------------------------------------------------------------------------------------------------#
 import os
 import socket
 import platform
@@ -7,6 +15,9 @@ import psutil
 import subprocess
 
 def system_basics():
+    """Collects basic system information including hostname, current user, OS, and kernel version.
+    Returns:
+        str: Formatted string containing system basics."""
     lines = []
     lines.append("=== System Basics ===")
     lines.append(f"Hostname: {socket.gethostname()}")
@@ -16,6 +27,9 @@ def system_basics():
     return "\n".join(lines)
 
 def hardware_info():
+    """Collects hardware information including CPU, cores, and memory details.
+    Returns:
+        str: Formatted string containing hardware information."""
     lines = []
     lines.append("\n=== Hardware Info ===")
     lines.append(f"CPU: {platform.processor()}")
@@ -27,6 +41,9 @@ def hardware_info():
     return "\n".join(lines)
 
 def system_status():
+    """Collects system status information including uptime, load average, and process count.
+    Returns:
+        str: Formatted string containing system status information."""
     lines = []
     lines.append("\n=== System Status ===")
     uptime = subprocess.check_output(["uptime", "-p"]).decode().strip()
@@ -36,6 +53,9 @@ def system_status():
     return "\n".join(lines)
 
 def networking_info():
+    """Collects networking information including IP address, interfaces, and open ports.
+    Returns:
+        str: Formatted string containing networking information.""" 
     lines = []
     lines.append("\n=== Networking Info ===")
     lines.append(f"IP Address: {socket.gethostbyname(socket.gethostname())}")
@@ -48,6 +68,10 @@ def networking_info():
     return "\n".join(lines)
 
 def get_next_filename(base_name="system_info", extension=".txt"):
+    """Generates the next available filename to avoid overwriting existing files.
+    Args:
+        base_name (str): Base name of the file.
+        extension (str): File extension."""
     counter = 1
     while True:
         filename = f"{base_name}{counter}{extension}"
@@ -56,11 +80,16 @@ def get_next_filename(base_name="system_info", extension=".txt"):
         counter += 1
 
 def save_output(content):
+    """Saves the collected system information to a uniquely named file.
+    Args:
+        content (str): The content to be saved to the file."""
     filename = get_next_filename()
     with open(filename, "w") as f:
         f.write(content)
     print(f"\nSystem info saved to {filename}")
 
+# Only run this code if the file is being executed directly, not when it’s imported.
+# note: The following code block is for demonstration purposes and can be removed or modified as needed.
 if __name__ == "__main__":
     # Collect all sections
     output = []
