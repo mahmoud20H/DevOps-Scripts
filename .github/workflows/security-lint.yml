@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths-ignore:
-      - 'python_scripts/**'
+    paths:
+      - 'bin/**'
   pull_request:
     branches: [main]
-    paths-ignore:
-      - 'python_scripts/**'
+    paths:
+      - 'bin/**'
 
 jobs:
   shell-check:
