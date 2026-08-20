@@ -25,6 +25,8 @@ DevOps-Scripts/
 ├── python_scripts/             # Python utility and monitoring scripts
 │   ├── check_servers.py                # Server health monitor and AWS SNS status notification script
 │   └── password_generator.py           # Interactive random password generator tool
+│   └── system_info.py                  # system information collection and monitoring
+│   └── README.md                       # explain scripts under python_scripts what do & how to use it
 |
 ├── tests/                      # test suites
 │   └── test-disk-monitor.bats          # automated script for test bash disk-monitor script
