@@ -1,17 +1,45 @@
 import subprocess
+from datetime import datetime
+from pathlib import Path
+
+
+# ---------------------------------------
+# Configuration
+# ---------------------------------------
+
+AIDE_CONFIG = "/etc/aide/aide-lab.conf"
+LOG_DIR = Path("/var/log/aide-fim/python")
+
+
+# ---------------------------------------
+# Prepare logging directory
+# ---------------------------------------
+
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+
+# ---------------------------------------
+# Run AIDE
+# ---------------------------------------
 
 result = subprocess.run(
     [
         "sudo",
         "/usr/bin/aide",
         "--check",
-        "--config=/etc/aide/aide-lab.conf"
+        f"--config={AIDE_CONFIG}"
     ],
     capture_output=True,
     text=True
 )
 
+
 exit_code = result.returncode
+
+
+# ---------------------------------------
+# Prepare result containers
+# ---------------------------------------
 
 added = []
 removed = []
@@ -19,17 +47,17 @@ changed = []
 
 section = None
 
-if exit_code == 0:
-    print("AIDE check completed successfully.")
-    print("Status: CLEAN")
 
-elif exit_code in [1, 2, 4]:
+# ---------------------------------------
+# Parse AIDE output
+# ---------------------------------------
+
+if exit_code != 0 and exit_code & 1 or exit_code & 2 or exit_code & 4:
 
     lines = result.stdout.splitlines()
 
     for line in lines:
 
-        # Detect which section we are in
         if line.strip() == "Added entries:":
             section = "added"
             continue
@@ -42,22 +70,17 @@ elif exit_code in [1, 2, 4]:
             section = "changed"
             continue
 
-        # Ignore everything until we reach a section
         if section is None:
             continue
 
-        # Only process lines containing a colon
         if ":" not in line:
             continue
 
-        # Extract the path after the first colon
         path = line.split(":", 1)[1].strip()
 
-        # Make sure we actually got a path
         if not path.startswith("/"):
             continue
 
-        # Store the path in the correct list
         if section == "added":
             added.append(path)
 
@@ -67,26 +90,97 @@ elif exit_code in [1, 2, 4]:
         elif section == "changed":
             changed.append(path)
 
-    print("AIDE detected filesystem changes.")
-    print("Exit code:", exit_code)
+
+# ---------------------------------------
+# Remove duplicates
+# ---------------------------------------
+
+added = list(dict.fromkeys(added))
+removed = list(dict.fromkeys(removed))
+changed = list(dict.fromkeys(changed))
+
+
+# ---------------------------------------
+# Current timestamp
+# ---------------------------------------
+
+now = datetime.now()
+
+timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+date = now.strftime("%Y-%m-%d")
+
+
+# ---------------------------------------
+# Determine result
+# ---------------------------------------
+
+if exit_code == 0:
+
+    status = "CLEAN"
+
+    log_file = LOG_DIR / f"{date}-clean.log"
+
+    message = (
+        f"{timestamp} [INFO] AIDE check completed successfully.\n"
+        f"{timestamp} [INFO] No filesystem changes detected.\n"
+    )
+
+elif exit_code & 1 or exit_code & 2 or exit_code & 4:
+
+    status = "CHANGE"
+
+    log_file = LOG_DIR / f"{date}-change.log"
+
+    message = (
+        f"{timestamp} [WARNING] AIDE detected filesystem changes.\n"
+        f"{timestamp} [WARNING] Exit code: {exit_code}\n"
+    )
 
     if added:
-        print("\nAdded:")
+        message += "\nAdded:\n"
         for path in added:
-            print("  ", path)
+            message += f"  {path}\n"
 
     if removed:
-        print("\nRemoved:")
+        message += "\nRemoved:\n"
         for path in removed:
-            print("  ", path)
+            message += f"  {path}\n"
 
     if changed:
-        print("\nChanged:")
+        message += "\nChanged:\n"
         for path in changed:
-            print("  ", path)
+            message += f"  {path}\n"
+
+    message += "\n"
+
 
 else:
-    print("AIDE check could not be completed.")
-    print("Exit code:", exit_code)
-    print("STDERR:")
-    print(result.stderr)
+
+    status = "ERROR"
+
+    log_file = LOG_DIR / f"{date}-error.log"
+
+    message = (
+        f"{timestamp} [ERROR] AIDE check could not be completed.\n"
+        f"{timestamp} [ERROR] Exit code: {exit_code}\n"
+        f"{timestamp} [ERROR] {result.stderr.strip()}\n"
+    )
+
+
+# ---------------------------------------
+# Write log
+# ---------------------------------------
+
+with open(log_file, "a") as file:
+    file.write(message)
+
+
+# ---------------------------------------
+# Terminal output
+# ---------------------------------------
+
+print("AIDE Monitor")
+print("============")
+print("Status:", status)
+print("Exit code:", exit_code)
+print("Log:", log_file)
