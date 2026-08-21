@@ -44,3 +44,15 @@ else:
         print("Installation aborted.")
         exit(1)
 
+# TODO: Ask for the AIDE configuration name
+
+# TODO: Ask what should be monitored using AIDE
+
+# TODO: Generate the AIDE configuration
+
+# TODO: Initialize the AIDE database
+
+# TODO: Ask whether to configure automatic monitoring
+# If yes, set up a cron job for automatic monitoring
+
+# TODO: Ask where logs should go & make default log file location
