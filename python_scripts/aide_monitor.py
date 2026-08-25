@@ -133,7 +133,7 @@ if exit_code == 0:
         f"{timestamp} [INFO] No filesystem changes detected.\n"
     )
 
-elif exit_code & 1 or exit_code & 2 or exit_code & 4:
+elif 1 <= exit_code <= 7:
 
     status = "CHANGE"
 
