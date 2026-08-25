@@ -22,10 +22,6 @@ if os.name != 'posix':
     print("This script is intended to run on Linux systems only.")
     exit(1)
 
-if not subprocess.run(["which", "python3"], capture_output=True).returncode == 0:
-    print("Python3 is not installed.")
-    exit(1)
-
 if os.geteuid() != 0:
     print("This script must be run with root privileges.")
     exit(1)
