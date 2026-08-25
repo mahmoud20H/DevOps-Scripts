@@ -1,7 +1,16 @@
+import os
 import subprocess
 from datetime import datetime
 from pathlib import Path
 
+
+# ---------------------------------------
+# Check root privileges
+# ---------------------------------------
+if os.geteuid() != 0:
+    print("ERROR: aide-monitor.py must be run as root.")
+    print("Run: sudo python3 aide-monitor.py")
+    exit(1)
 
 # ---------------------------------------
 # Configuration
@@ -24,7 +33,6 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 result = subprocess.run(
     [
-        "sudo",
         "/usr/bin/aide",
         "--check",
         f"--config={AIDE_CONFIG}"
@@ -125,7 +133,7 @@ if exit_code == 0:
         f"{timestamp} [INFO] No filesystem changes detected.\n"
     )
 
-elif exit_code & 1 or exit_code & 2 or exit_code & 4:
+elif 1 <= exit_code <= 7:
 
     status = "CHANGE"
 
