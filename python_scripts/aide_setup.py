@@ -8,6 +8,7 @@
 # ----------------------------------------------------------------------------------------------------------------#
 import os
 import subprocess
+from pathlib import Path
 
 # ========================================
 #  Linux File Integrity Monitor
@@ -40,7 +41,15 @@ else:
         print("Installation aborted.")
         exit(1)
 
-# TODO: Ask for the AIDE configuration name
+# Ask for the AIDE configuration name & add a default value if the user doesn't provide one
+name_config = input("Enter the name for the AIDE configuration (default: aide-lab): ") or "aide-lab"
+config_path = Path("/etc/aide") / f"{name_config}.conf"
+print(f"AIDE configuration path: {config_path}")
+
+# Ensure the parent directory exists
+config_path.parent.mkdir(parents=True, exist_ok=True)
+# Create the file if it doesn't exist
+config_path.touch(exist_ok=True)
 
 # TODO: Ask what should be monitored using AIDE
 
