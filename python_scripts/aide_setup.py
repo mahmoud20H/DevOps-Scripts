@@ -41,7 +41,10 @@ else:
         print("Installation aborted.")
         exit(1)
 
-# Ask for the AIDE configuration name & add a default value if the user doesn't provide one
+# ---------------------------------------
+# Ask for the AIDE configuration name 
+# add a default value if the user doesn't provide one
+# ---------------------------------------
 name_config = input("Enter the name for the AIDE configuration (default: aide-lab): ") or "aide-lab"
 config_path = Path("/etc/aide") / f"{name_config}.conf"
 print(f"AIDE configuration path: {config_path}")
@@ -51,7 +54,11 @@ config_path.parent.mkdir(parents=True, exist_ok=True)
 # Create the file if it doesn't exist
 config_path.touch(exist_ok=True)
 
-# TODO: Ask what should be monitored using AIDE
+# ---------------------------------------
+# Ask for the paths to monitor with AIDE
+# check if the provided paths exist and are valid
+# continue asking for paths until the user decides to stop
+# ---------------------------------------
 until_user_stops = True
 monitored_paths = []
 while until_user_stops:
