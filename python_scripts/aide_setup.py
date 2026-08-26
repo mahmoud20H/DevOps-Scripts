@@ -52,6 +52,23 @@ config_path.parent.mkdir(parents=True, exist_ok=True)
 config_path.touch(exist_ok=True)
 
 # TODO: Ask what should be monitored using AIDE
+until_user_stops = True
+monitored_paths = []
+while until_user_stops:
+    user_path = input("Enter the path to monitor with AIDE (default: /etc): ") or "/etc"
+    if not Path(user_path).exists():
+        print(f"ERROR: The specified path '{user_path}' does not exist.")
+        print("Please enter a file or directory.")
+    else:
+        print(f"Path added: {user_path}")
+        monitored_paths.append(user_path)
+        add_another = input("Add another path? [Y/n]: ").lower()
+        if add_another not in ['y', 'yes']:
+            until_user_stops = False
+
+print("Monitored paths:")
+for i, path in enumerate(monitored_paths, start=1):
+    print(f" {i}- {path}")
 
 # TODO: Generate the AIDE configuration
 
