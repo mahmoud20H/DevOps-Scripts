@@ -14,9 +14,8 @@ from pathlib import Path
 #  Linux File Integrity Monitor
 # checking prerequisites for AIDE installation 
 # 1. Check if the script is running on a Linux system 
-# 2. Check if python3 is installed
-# 3. Check if the script is running with required privileges
-# 4. Check if AIDE is already installed
+# 2. Check if the script is running with required privileges
+# 3. Check if AIDE is already installed
 # ========================================
 
 if os.name != 'posix':
@@ -72,7 +71,7 @@ while until_user_stops:
         add_another = input("Add another path? [Y/n]: ").lower()
         if add_another not in ['y', 'yes']:
             until_user_stops = False
-
+# print the list of monitored paths
 print("Monitored paths:")
 for i, path in enumerate(monitored_paths, start=1):
     print(f" {i}- {path}")
