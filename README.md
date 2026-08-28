@@ -8,8 +8,8 @@ A collection of Bash scripts for system administration, monitoring, and maintena
 ```
 DevOps-Scripts/
 ├── bin/                       # Executable scripts 
-│   ├── disk-monitor.sh                 # script for disk monitor checks
-│   ├── lvm-setup.sh                    # script for Interactive LVM (Logical Volume Management) Automation
+│   ├── disk-monitor.sh                 # Script for disk monitor checks
+│   ├── lvm-setup.sh                    # Script for Interactive LVM (Logical Volume Management) Automation
 │   └── user-management.sh              # Interactive user, group, and permission management
 |
 ├── lib/                       # Shared libraries (sourced, never executed)
@@ -26,10 +26,12 @@ DevOps-Scripts/
 │   ├── check_servers.py                # Server health monitor and AWS SNS status notification script
 │   └── password_generator.py           # Interactive random password generator tool
 │   └── system_info.py                  # system information collection and monitoring
-│   └── README.md                       # explain scripts under python_scripts what do & how to use it
+│   └── aide_monitor.py                 # This script to monitor the system changes using AIDE tool.
+│   └── system_setup.py                 # This script to set up the AIDE tool
+│   └── README.md                       # Explain scripts under python_scripts what do & how to use it
 |
 ├── tests/                      # test suites
-│   └── test-disk-monitor.bats          # automated script for test bash disk-monitor script
+│   └── test-disk-monitor.bats          # Automated script for test bash disk-monitor script
 │   └── test-user-management.bats       # Root privilege and syntax checks for user management
 │
 ├── .github/workflows/          # CI/CD pipelines
