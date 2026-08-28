@@ -50,8 +50,6 @@ print(f"AIDE configuration path: {config_path}")
 
 # Ensure the parent directory exists
 config_path.parent.mkdir(parents=True, exist_ok=True)
-# Create the file if it doesn't exist
-config_path.touch(exist_ok=True)
 
 # ---------------------------------------
 # Ask for the paths to monitor with AIDE
