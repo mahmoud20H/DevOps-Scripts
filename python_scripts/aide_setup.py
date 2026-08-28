@@ -140,7 +140,33 @@ Initial integrity check completed successfully.
 AIDE setup completed successfully.
 """)
 
-# TODO: Ask whether to configure automatic monitoring
-# If yes, set up a cron job for automatic monitoring
+# ---------------------------------------
+# Ask whether to configure automatic monitoring
+# If yes, set up a Cron Job Scheduling for Monitoring
+# ---------------------------------------
+schedule_response = input("Do you want to schedule automatic monitoring? [y/N]: ").lower()
+if schedule_response in ['y', 'yes']:
+    monitor_script_path = input("Enter the full path to the monitoring script (default: /home/mahmoud/aide/aide-monitor.py): ") or "/home/mahmoud/aide/aide-monitor.py"
+    
+    # Optional: ask for frequency or use a default daily schedule
+    print("Select monitoring frequency:")
+    print("1. Daily (at 2:00 AM)")
+    print("2. Weekly (Sundays at 2:00 AM)")
+    freq_choice = input("Choose option [1/2, default: 1]: ") or "1"
+    
+    cron_schedule = "0 2 * * *" if freq_choice == "1" else "0 2 * * 0"
+    
+    # Write cron job to /etc/cron.d/aide-monitor
+    cron_file_path = Path("/etc/cron.d/aide-monitor")
+    cron_content = f"# AIDE automated monitoring cron job\n{cron_schedule} root /usr/bin/python3 {monitor_script_path} \n"
+    
+    with open(cron_file_path, "w") as cron_file:
+        cron_file.write(cron_content)
+    
+    # Secure permissions for the cron file (required by cron daemon)
+    os.chmod(cron_file_path, 0o644)
+    print(f"Cron job successfully scheduled and written to {cron_file_path}")
+else:
+    print("Automatic monitoring setup skipped.")
 
-# TODO: Ask where logs should go & make default log file location
+print("AIDE setup process completed successfully!")
