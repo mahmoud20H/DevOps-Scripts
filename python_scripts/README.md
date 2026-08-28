@@ -111,3 +111,40 @@ Failure after retries?
     2. Command-Line Options: Add flags (via argparse) so users can choose which section to run, e.g. --network or --hardware.
     3. Logging: Save outputs not only to text files but also to a structured log format (JSON or CSV) for easier parsing.
     4. Monitoring Mode: Add a scheduler to run the script periodically and track changes in system status over time.
+
+---
+
+### 4. Monitor the system changes using AIDE tool (`aide_monitor.py`)
+*   **File**: [aide_monitor.py]
+
+*   **Why It's Used**: 
+
+*   **How to Use**:
+    1.  Run the script in your terminal:
+        - To 
+            ```bash  
+            sudo python3 aide_monitor.py
+            ```
+    
+    2. 
+    
+    3.  
+    
+---
+
+### 4. AIDE tool setup Script (`aide_setup.py`)
+*   **File**: [aide_setup.py]
+
+*   **Why It's Used**: 
+
+*   **How to Use**:
+    1.  Run the script in your terminal:
+        - To 
+            ```bash  
+            sudo python3 aide_setup.py
+            ```
+    
+    2. 
+    
+    3.  
+    
