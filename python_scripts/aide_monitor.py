@@ -1,3 +1,14 @@
+# ----------------------------------------------------------------------------------------------------------------# 
+# This script should be run after aide_setup.py to monitor the system for changes.
+# Should be run as root to ensure it has the necessary permissions to access all files and directories.
+# creates a log file in /var/log/aide-fim/python with the current date and time, containing the results of the AIDE check.
+# differences between the current state of the filesystem and the last known good state are logged,
+#   including any added, removed, or changed files.
+# ----------------------------------------------------------------------------------------------------------------#
+
+# ----------------------------------------------------------------------------------------------------------------#
+# Imports
+# ----------------------------------------------------------------------------------------------------------------#
 import os
 import subprocess
 from datetime import datetime
