@@ -101,7 +101,44 @@ with open(config_path, "w") as config_file:
 
 print(f"Successfully generated and wrote configuration to {config_path}")
 
-# TODO: Initialize the AIDE database
+# ---------------------------------------
+# Initialize AIDE database and run initial check
+# ---------------------------------------
+
+# Initialize AIDE using the generated configuration
+print("Initializing AIDE database...")
+init_command = ["aide", "--config", str(config_path), "--init"]
+subprocess.run(init_command, check=True)
+
+# Check for the new database file and rename it to the active database
+# By default the output is typically /var/lib/aide/aide.db.new 
+# or matching the name_config depending on defaults
+db_dir = Path("/var/lib/aide")
+new_db_path = db_dir / f"{name_config}.db.new"
+final_db_path = db_dir / f"{name_config}.db"
+
+if new_db_path.exists():
+    print(f"Moving new database from {new_db_path} to {final_db_path}...")
+    if final_db_path.exists():
+        final_db_path.unlink()
+    new_db_path.rename(final_db_path)
+else:
+    print(f"ERROR: Expected database new file not found at {new_db_path}")
+    exit(1)
+
+# Run an initial check
+print("Running initial AIDE integrity check...")
+check_command = ["aide", "--config", str(config_path), "--check"]
+subprocess.run(check_command, check=True)
+
+# Step 5: Output the status clearly
+print(f"""
+AIDE database initialized successfully.
+AIDE configuration: {config_path}
+AIDE database: {final_db_path}
+Initial integrity check completed successfully.
+AIDE setup completed successfully.
+""")
 
 # TODO: Ask whether to configure automatic monitoring
 # If yes, set up a cron job for automatic monitoring
