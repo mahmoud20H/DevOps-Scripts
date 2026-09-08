@@ -1,6 +1,6 @@
 # Python Utilities & Monitoring Scripts
 
-This directory contains Python scripts to assist with system monitoring, notifications, and utility tasks.
+This directory contains Python scripts to assist with system monitoring, security integrity, notifications, and utility tasks.
 
 ---
 
@@ -114,37 +114,81 @@ Failure after retries?
 
 ---
 
-### 4. Monitor the system changes using AIDE tool (`aide_monitor.py`)
-*   **File**: [aide_monitor.py]
+### 4. AIDE File Integrity Monitor Setup (`aide_setup.py`)
 
-*   **Why It's Used**: 
+#### AIDE FIM Workflow Architecture
 
+```
+┌────────────────────────────────────────────────────────┐
+│                   1. RUN AIDE SETUP                    │
+│             (sudo python3 aide_setup.py)               │
+└───────────────────────────┬────────────────────────────┘
+                            │
+        ┌───────────────────┼───────────────────┐
+        ▼                   ▼                   ▼
+Install Package    Generate Config File   Initialize Baseline DB
+ (apt/dnf/yum)    (/etc/aide/*.conf)      (/var/lib/aide/*.db)
+                            │
+                            ▼
+               Configure Cron Schedule
+              (/etc/cron.d/aide-monitor)
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│                  2. RUN AIDE MONITOR                   │
+│            (Manual or Scheduled via Cron)              │
+│            (sudo python3 aide_monitor.py)              │
+└───────────────────────────┬────────────────────────────┘
+                            │
+        ┌───────────────────┼───────────────────┐
+        ▼                   ▼                   ▼
+ [CLEAN] No Changes   [CHANGE] Added/    [ERROR] Check Failed
+  YYYY-MM-DD-clean    Changed/Removed    YYYY-MM-DD-error.log
+      .log            YYYY-MM-DD-change
+                            .log
+```
+
+*   **File**: [aide_setup.py]
+*   **Why It's Used**: Automatically installs and configures AIDE (Advanced Intrusion Detection Environment) on Linux. It builds custom monitoring rules for selected directories (e.g. `/etc`, `/var`, `/usr`), initializes the baseline integrity database, and creates an automated cron job to run system integrity monitoring periodically.
+*   **Prerequisites**:
+    *   Linux Operating System (Debian/Ubuntu, RHEL/CentOS/Fedora, Arch Linux)
+    *   Root / `sudo` privileges
 *   **How to Use**:
-    1.  Run the script in your terminal:
-        - To 
-            ```bash  
-            sudo python3 aide_monitor.py
-            ```
-    
-    2. 
-    
-    3.  
-    
+    1.  Run the setup script with root privileges:
+        ```bash
+        sudo python3 python_scripts/aide_setup.py
+        ```
+    2.  Follow the interactive setup prompts:
+        *   **Package Installation**: Automatically installs `aide` if not already installed.
+        *   **Configuration Name**: Enter a name for your config (default: `aide-lab`).
+        *   **Monitored Paths**: Enter directory paths to monitor (default: `/etc`). Add as many paths as needed.
+        *   **Database Initialization**: The script builds and initializes the baseline integrity database under `/var/lib/aide/`.
+        *   **Automatic Monitoring**: Choose to set up an automated cron schedule (Daily at 2:00 AM or Weekly on Sundays at 2:00 AM).
+    3.  The setup script automatically links `aide_setup.py` with `aide_monitor.py` by placing a cron configuration file in `/etc/cron.d/aide-monitor`.
+
 ---
 
-### 4. AIDE tool setup Script (`aide_setup.py`)
-*   **File**: [aide_setup.py]
+### 5. AIDE System Integrity Monitor (`aide_monitor.py`)
 
-*   **Why It's Used**: 
-
+*   **File**: [aide_monitor.py]
+*   **Why It's Used**: Scans the system against the baseline AIDE database created during setup. It detects added, modified, or deleted files, categorizes filesystem changes, and logs structured results to `/var/log/aide-fim/python/`.
+*   **Prerequisites**:
+    *   Must be run after `aide_setup.py` has initialized the AIDE database.
+    *   Root / `sudo` privileges.
 *   **How to Use**:
-    1.  Run the script in your terminal:
-        - To 
-            ```bash  
-            sudo python3 aide_setup.py
-            ```
-    
-    2. 
-    
-    3.  
-    
+    1.  **Manual Execution**:
+        ```bash
+        sudo python3 python_scripts/aide_monitor.py
+        ```
+    2.  **Using Custom Config File**:
+        If you created a custom configuration name during setup (e.g., `/etc/aide/custom-aide.conf`), pass it with the `-c` or `--config` option:
+        ```bash
+        sudo python3 python_scripts/aide_monitor.py --config /etc/aide/custom-aide.conf
+        ```
+    3.  **Automated Execution (Cron)**:
+        If configured during setup, cron will run `aide_monitor.py` automatically. You can check the cron configuration at `/etc/cron.d/aide-monitor`.
+    4.  **Reviewing Logs**:
+        Logs are saved in `/var/log/aide-fim/python/` categorized by date and status:
+        *   `YYYY-MM-DD-clean.log` - Generated when no filesystem changes are detected.
+        *   `YYYY-MM-DD-change.log` - Contains list of Added, Removed, or Changed files.
+        *   `YYYY-MM-DD-error.log` - Logged if AIDE encounters an error during execution.
