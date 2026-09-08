@@ -148,13 +148,18 @@ schedule_response = input("Do you want to schedule automatic monitoring? [y/N]: 
 if schedule_response in ['y', 'yes']:
     monitor_script_path = input("Enter the full path to the monitoring script (default: /home/mahmoud/aide/aide-monitor.py): ") or "/home/mahmoud/aide/aide-monitor.py"
     
-    # Optional: ask for frequency or use a default daily schedule
-    print("Select monitoring frequency:")
-    print("1. Daily (at 2:00 AM)")
-    print("2. Weekly (Sundays at 2:00 AM)")
-    freq_choice = input("Choose option [1/2, default: 1]: ") or "1"
-    
-    cron_schedule = "0 2 * * *" if freq_choice == "1" else "0 2 * * 0"
+    while True:
+        print("Select monitoring frequency:")
+        print("1. Daily (at 2:00 AM)")
+        print("2. Weekly (Sundays at 2:00 AM)")
+        freq_choice = input("Choose option [1/2, default: 1]: ").strip() or "1"
+        if freq_choice == "1":
+            cron_schedule = "0 2 * * *"
+            break
+        elif freq_choice == "2":
+            cron_schedule = "0 2 * * 0"
+            break
+        print("Invalid option. Please enter 1 or 2.")
     
     # Write cron job to /etc/cron.d/aide-monitor
     cron_file_path = Path("/etc/cron.d/aide-monitor")
