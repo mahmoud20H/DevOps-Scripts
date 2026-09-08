@@ -8,22 +8,23 @@
 # ----------------------------------------------------------------------------------------------------------------#
 import os
 import subprocess
+import shutil
 from pathlib import Path
 
 # ========================================
 #  Linux File Integrity Monitor
-# checking prerequisites for AIDE installation 
+#  checking prerequisites for AIDE installation 
 # 1. Check if the script is running on a Linux system 
 # 2. Check if the script is running with required privileges
-# 3. Check if AIDE is already installed
+# 3. Check if AIDE is already installed or install it
 # ========================================
 
 if os.name != 'posix':
-    print("This script is intended to run on Linux systems only.")
+    print("ERROR: This script is intended to run on Linux systems only.")
     exit(1)
 
 if os.geteuid() != 0:
-    print("This script must be run with root privileges.")
+    print("ERROR: This script must be run with root privileges (e.g. using sudo).")
     exit(1)
 
 if subprocess.run(["which", "aide"], capture_output=True).returncode == 0:
@@ -42,7 +43,7 @@ else:
 
 # ---------------------------------------
 # Ask for the AIDE configuration name 
-# add a default value if the user doesn't provide one
+# Add a default value if the user doesn't provide one
 # ---------------------------------------
 name_config = input("Enter the name for the AIDE configuration (default: aide-lab): ") or "aide-lab"
 config_path = Path("/etc/aide") / f"{name_config}.conf"
@@ -53,8 +54,8 @@ config_path.parent.mkdir(parents=True, exist_ok=True)
 
 # ---------------------------------------
 # Ask for the paths to monitor with AIDE
-# check if the provided paths exist and are valid
-# continue asking for paths until the user decides to stop
+# Check if the provided paths exist and are valid
+# Continue asking for paths until the user decides to stop
 # ---------------------------------------
 until_user_stops = True
 monitored_paths = []
@@ -63,14 +64,15 @@ while until_user_stops:
     user_path = input("Enter the path to monitor with AIDE (default: /etc): ") or "/etc"
     if not Path(user_path).exists():
         print(f"ERROR: The specified path '{user_path}' does not exist.")
-        print("Please enter a file or directory.")
+        print("Please enter a valid file or directory.")
     else:
         print(f"Path added: {user_path}")
         monitored_paths.append(user_path)
         add_another = input("Add another path? [Y/n]: ").lower()
         if add_another not in ['y', 'yes']:
             until_user_stops = False
-# print the list of monitored paths
+
+# Print the list of monitored paths
 print("Monitored paths:")
 for i, path in enumerate(monitored_paths, start=1):
     print(f" {i}- {path}")
@@ -131,7 +133,7 @@ print("Running initial AIDE integrity check...")
 check_command = ["aide", "--config", str(config_path), "--check"]
 subprocess.run(check_command, check=True)
 
-# Step 5: Output the status clearly
+# Output the status clearly
 print(f"""
 AIDE database initialized successfully.
 AIDE configuration: {config_path}
@@ -144,9 +146,10 @@ AIDE setup completed successfully.
 # Ask whether to configure automatic monitoring
 # If yes, set up a Cron Job Scheduling for Monitoring
 # ---------------------------------------
-schedule_response = input("Do you want to schedule automatic monitoring? [y/N]: ").lower()
-if schedule_response in ['y', 'yes']:
-    monitor_script_path = input("Enter the full path to the monitoring script (default: /home/mahmoud/aide/aide-monitor.py): ") or "/home/mahmoud/aide/aide-monitor.py"
+schedule_response = input("Do you want to schedule automatic monitoring? [Y/n]: ").strip().lower()
+if schedule_response in ['y', 'yes', '']:
+    default_monitor_script = Path(__file__).parent.resolve() / "aide_monitor.py"
+    monitor_script_path = input(f"Enter full path to monitoring script (default: {default_monitor_script}): ").strip() or str(default_monitor_script)
     
     while True:
         print("Select monitoring frequency:")
@@ -162,8 +165,9 @@ if schedule_response in ['y', 'yes']:
         print("Invalid option. Please enter 1 or 2.")
     
     # Write cron job to /etc/cron.d/aide-monitor
+    python_bin = shutil.which("python3") or "/usr/bin/python3"
     cron_file_path = Path("/etc/cron.d/aide-monitor")
-    cron_content = f"# AIDE automated monitoring cron job\n{cron_schedule} root /usr/bin/python3 {monitor_script_path} \n"
+    cron_content = f"# AIDE automated monitoring cron job\n{cron_schedule} root {python_bin} {monitor_script_path} --config {config_path}\n"
     
     with open(cron_file_path, "w") as cron_file:
         cron_file.write(cron_content)
