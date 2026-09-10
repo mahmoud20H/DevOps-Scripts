@@ -118,6 +118,8 @@ Failure after retries?
 
 #### AIDE FIM Workflow Architecture
 
+*   You can review this post to get more info about these: [stop-checking-logs-manually-automate-linux-security-with-aide](https://medium.com/@mahmoudahmed12492/stop-checking-logs-manually-automate-linux-security-with-aide-2f5df772fdfc)
+
 ```
 ┌────────────────────────────────────────────────────────┐
 │                   1. RUN AIDE SETUP                    │
