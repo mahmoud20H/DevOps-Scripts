@@ -27,7 +27,7 @@ DevOps-Scripts/
 │   └── password_generator.py           # Interactive random password generator tool
 │   └── system_info.py                  # system information collection and monitoring
 │   └── aide_monitor.py                 # This script to monitor the system changes using AIDE tool.
-│   └── system_setup.py                 # This script to set up the AIDE tool
+│   └── aide_setup.py                   # This script to set up the AIDE tool
 │   └── README.md                       # Explain scripts under python_scripts what do & how to use it
 |
 ├── tests/                      # test suites
