@@ -1,0 +1,25 @@
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+
+# Python
+__pycache__/
+*.pyo
+*.pyd
+.venv/
+venv/
+ENV/
+
+# Environment files
+.env
+.env.*
+
+# Git
+.git/
