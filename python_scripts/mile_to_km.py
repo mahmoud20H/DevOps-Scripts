@@ -9,6 +9,18 @@
 from tkinter import *   # Import all Tkinter classes/functions
 
 # ----------------------------------------------------------------------------------------------------------------#
+# Functions
+# ----------------------------------------------------------------------------------------------------------------#
+
+def miles_to_km():
+    """
+    Convert miles entered by the user into kilometers and update the result label.
+    """
+    miles = float(miles_input.get())                   # Get user input and convert to float
+    km = round(miles * 1.609, ndigits=4)               # Perform conversion and round result
+    kilometer_result_label.config(text=f"{km}")        # Update label with result
+
+# ----------------------------------------------------------------------------------------------------------------#
 # Window Setup
 # ----------------------------------------------------------------------------------------------------------------#
 window = Tk()                                 # Create the main application window
@@ -39,7 +51,7 @@ kilometer_label.grid(row=1, column=2)        # Place label at row 1, column 2
 # ----------------------------------------------------------------------------------------------------------------#
 # Button Section
 # ----------------------------------------------------------------------------------------------------------------#
-calculate_button = Button(text="calculate")  # Button to trigger conversion
+calculate_button = Button(text="calculate", command=miles_to_km)  # Button to trigger conversion function
 calculate_button.grid(row=2, column=1)       # Place button at row 2, column 1
 
 # ----------------------------------------------------------------------------------------------------------------#
