@@ -28,6 +28,8 @@ DevOps-Scripts/
 │   └── system_info.py                  # system information collection and monitoring
 │   └── aide_monitor.py                 # This script to monitor the system changes using AIDE tool.
 │   └── aide_setup.py                   # This script to set up the AIDE tool
+│   └── mile_to_km.py                   # Interactive Tkinter GUI app to convert miles to kilometers
+│   └── Log_analysis.py                 # Structured JSON/MongoDB log analyzer and error reporting tool
 │   └── README.md                       # Explain scripts under python_scripts what do & how to use it
 |
 ├── tests/                      # test suites

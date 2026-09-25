@@ -194,3 +194,43 @@ Install Package    Generate Config File   Initialize Baseline DB
         *   `YYYY-MM-DD-clean.log` - Generated when no filesystem changes are detected.
         *   `YYYY-MM-DD-change.log` - Contains list of Added, Removed, or Changed files.
         *   `YYYY-MM-DD-error.log` - Logged if AIDE encounters an error during execution.
+
+---
+
+### 6. Miles to Kilometer Converter (`mile_to_km.py`)
+
+*   **File**: [mile_to_km.py]
+*   **Why It's Used**: Simple desktop GUI application built with Tkinter that converts distances from miles to kilometers (rounded to 4 decimal places). Useful as a quick utility tool for unit conversion.
+*   **Prerequisites**:
+    *   Python 3 with `tkinter` support (`sudo apt install python3-tk` on Debian/Ubuntu if Tkinter is not already included).
+*   **How to Use**:
+    1.  Run the script in your terminal:
+        ```bash
+        python3 python_scripts/mile_to_km.py
+        ```
+    2.  Enter the distance value in miles into the input field.
+    3.  Click the **calculate** button to convert and view the result in kilometers.
+
+---
+
+### 7. Structured JSON Log Analyzer (`Log_analysis.py`)
+
+*   **File**: [Log_analysis.py]
+*   **Why It's Used**: Parses structured JSON log files (such as MongoDB logs from `db.log`), converts log entries into a pandas DataFrame, filters for error severity (`severity: "E"`), and summarizes top error messages and hourly error statistics.
+*   **Prerequisites**:
+    *   Python 3 with `pandas` installed (`pip3 install pandas`).
+    *   A JSON log file named `db.log` in the directory where the script is executed.
+*   **How to Use**:
+    1.  Install the required dependency if needed:
+        ```bash
+        pip3 install pandas
+        ```
+    2.  Ensure your JSON log file (`db.log`) is located in the working directory.
+    3.  Run the script:
+        ```bash
+        python3 python_scripts/Log_analysis.py
+        ```
+    4.  The script outputs:
+        *   **Top 10 Errors**: Shows the top 10 error messages sorted by frequency of occurrence.
+        *   **Errors per Hour**: Displays a breakdown of total error occurrences grouped by hour of the day.
+
