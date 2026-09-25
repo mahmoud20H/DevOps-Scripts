@@ -20,7 +20,7 @@ def parse_log_line(line):
         return {"error": str(e), "raw": line}
 
 # Read and parse logs
-with open('app.log', 'r') as f:
+with open('db.log', 'r') as f:
     logs = f.readlines()
 
 df = pd.DataFrame([parse_log_line(log) for log in logs])
