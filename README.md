@@ -10,31 +10,34 @@ DevOps-Scripts/
 ├── bin/                       # Executable scripts 
 │   ├── disk-monitor.sh                 # Script for disk monitor checks
 │   ├── lvm-setup.sh                    # Script for Interactive LVM (Logical Volume Management) Automation
-│   └── user-management.sh              # Interactive user, group, and permission management
+│   ├── user-management.sh              # Interactive user, group, and permission management
+|   └── backup.sh                       # Backup script to backup files and directories
 |
 ├── lib/                       # Shared libraries (sourced, never executed)
 │   ├── strict_mode.sh                  # Unofficial Bash Strict Mode
-│   └── logger.sh                       # Timestamped, levelled logging (INFO/WARN/ERROR/DEBUG)
+│   ├── logger.sh                       # Timestamped, levelled logging (INFO/WARN/ERROR/DEBUG)
 │   └── error_handler.sh                # Error handling and cleanup utilities
 │
 ├── conf/                       # Configurations
-│   └── disk-monitor.conf               # Disk Monitor Default Configuration to pass the values in it
-│   └── lvm-setup.conf                  # LVM Setup Default Configuration, These values will pre-fill the interactive prompts.
-│   └── user-management.conf            # Default shells and admin group definitions
+│   ├── disk-monitor.conf               # Disk Monitor Default Configuration to pass the values in it
+│   ├── lvm-setup.conf                  # LVM Setup Default Configuration, These values will pre-fill the interactive prompts.
+│   ├── user-management.conf            # Default shells and admin group definitions
+|   └── backup.conf                     # Backup script default configuration
 |
 ├── python_scripts/             # Python utility and monitoring scripts
 │   ├── check_servers.py                # Server health monitor and AWS SNS status notification script
-│   └── password_generator.py           # Interactive random password generator tool
-│   └── system_info.py                  # system information collection and monitoring
-│   └── aide_monitor.py                 # This script to monitor the system changes using AIDE tool.
-│   └── aide_setup.py                   # This script to set up the AIDE tool
-│   └── mile_to_km.py                   # Interactive Tkinter GUI app to convert miles to kilometers
-│   └── Log_analysis.py                 # Structured JSON/MongoDB log analyzer and error reporting tool
+│   ├── password_generator.py           # Interactive random password generator tool
+│   ├── system_info.py                  # system information collection and monitoring
+│   ├── aide_monitor.py                 # This script to monitor the system changes using AIDE tool.
+│   ├── aide_setup.py                   # This script to set up the AIDE tool
+│   ├── mile_to_km.py                   # Interactive Tkinter GUI app to convert miles to kilometers
+│   ├── Log_analysis.py                 # Structured JSON/MongoDB log analyzer and error reporting tool
 │   └── README.md                       # Explain scripts under python_scripts what do & how to use it
 |
 ├── tests/                      # test suites
-│   └── test-disk-monitor.bats          # Automated script for test bash disk-monitor script
-│   └── test-user-management.bats       # Root privilege and syntax checks for user management
+│   ├── test-disk-monitor.bats          # Automated script for test bash disk-monitor script
+│   ├── test-user-management.bats       # Root privilege and syntax checks for user management
+|   └── test-backup.bats                # Automated script for test bash backup script
 │
 ├── .github/workflows/          # CI/CD pipelines
 │   └── security-lint.yml               # GitHub Actions workflow for shellcheck & Misconfiguration Scan
