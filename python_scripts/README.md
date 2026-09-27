@@ -10,7 +10,7 @@ This directory contains Python scripts to assist with system monitoring, securit
 
 #### Architecture
 
-```
+```text
                 EventBridge (Schedule)
                         │
                         ▼
@@ -120,7 +120,7 @@ Failure after retries?
 
 *   You can review this post to get more info about these: [stop-checking-logs-manually-automate-linux-security-with-aide](https://medium.com/@mahmoudahmed12492/stop-checking-logs-manually-automate-linux-security-with-aide-2f5df772fdfc)
 
-```
+```text
 ┌────────────────────────────────────────────────────────┐
 │                   1. RUN AIDE SETUP                    │
 │             (sudo python3 aide_setup.py)               │

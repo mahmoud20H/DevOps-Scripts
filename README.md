@@ -1,11 +1,11 @@
 # 🛠️ DevOps Utility Suite
 
-A collection of Bash scripts for system administration, monitoring, and maintenance. 
-
+A collection of Bash scripts for system administration, monitoring, and
+maintenance.
 
 ## 🏗️ Repository Architecture
 
-```
+```text
 DevOps-Scripts/
 ├── bin/                       # Executable scripts 
 │   ├── disk-monitor.sh                 # Script for disk monitor checks
@@ -40,11 +40,12 @@ DevOps-Scripts/
 |   └── test-backup.bats                # Automated script for test bash backup script
 │
 ├── .github/workflows/          # CI/CD pipelines
-│   └── security-lint.yml               # GitHub Actions workflow for shellcheck & Misconfiguration Scan
+│   ├── security-lint.yml               # GitHub Actions workflow for shellcheck & Misconfiguration Scan
+|   ├── doc-lint.yml                    # GitHub Actions workflow for Markdown linting
+    └── automated-tests.yml             # GitHub Actions workflow for automated tests
 │
 └── README.md
 ```
-
 
 ## 🚀 Quick Start
 
@@ -58,8 +59,7 @@ cd devops-scripts
 ### 2. Set Up Your Environment
 
 ```bash
-# Edit conf/ directory with your settings 
-# Example :-
+# Edit conf/ with your settings
 vim conf/disk-monitor.conf
 ```
 
@@ -87,30 +87,33 @@ brew install bats-core
 # Ubuntu/Debian
 sudo apt-get install bats
 
-# Run tests 
-# Example :-
+# Run one test file
 bats tests/test-disk-monitor.bats
 
 # Run all tests
 bats tests/*.bats
 ```
-🔒 Security
-This repository includes automated security scanning:
-CI/CD Security Checks
 
-ShellCheck: Static analysis for common Bash errors
-Trivy: Filesystem vulnerability scanning
+## 🔒 Security
 
-Best Practices
+This repository includes automated security scanning.
 
-✅ Never commit passwords or secrets to the repository
-✅ Use environment variables or secret management systems
-✅ All scripts must pass ShellCheck
-✅ Configuration files are externalized, not hardcoded
+### CI/CD Security Checks
+
+- **ShellCheck**: Static analysis for common Bash errors
+- **Trivy**: Filesystem vulnerability scanning
+
+### Best Practices
+
+- Never commit passwords or secrets to the repository
+- Use environment variables or secret management systems
+- All scripts must pass ShellCheck
+- Configuration files are externalized, not hardcoded
 
 ## 🔄 CI/CD Pipeline
 
 GitHub Actions automatically runs on:
+
 - **Push** to main branches
 - **Pull Requests** to main branches
 - **Manual trigger** via workflow_dispatch
@@ -123,6 +126,7 @@ GitHub Actions automatically runs on:
 ### View Results
 
 GitHub Actions logs are available in:
+
 - Repository → Actions tab
 - Each PR shows check status
 - Failures include detailed logs
