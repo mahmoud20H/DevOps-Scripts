@@ -1,0 +1,72 @@
+# =============================================================================
+# Automated Testing
+# =============================================================================
+# Runs automated tests inside Linux containers.
+# Runs automatically on: 
+#  1- push to main, 2- pull request to main, 3- manual trigger via workflow_dispatch.
+# =============================================================================
+
+name: Automated Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'bin/**'
+      - 'tests/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'bin/**'
+      - 'tests/**'
+
+# Cancel superseded runs on the same branch/PR to save minutes.
+concurrency:
+  group: automated-tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  bats-in-container:
+    name: Bats in Container
+    runs-on: ubuntu-latest
+
+    # Run every step inside the Ubuntu container as root
+    container:
+      image: ubuntu:latest
+      options: --user root
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Bats and script dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -qq
+          apt-get install -y -qq \
+            bats \
+            lvm2 \
+            aide \
+            git \
+            ca-certificates
+
+          bats --version
+          command -v lvcreate >/dev/null
+          command -v aide >/dev/null || true
+
+      # -----------------------------------------------------------------------
+      # Execute the full Bats suite from repo root
+      # -----------------------------------------------------------------------
+      - name: Run Bats test suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "${GITHUB_WORKSPACE}"
+          bats tests/*.bats
