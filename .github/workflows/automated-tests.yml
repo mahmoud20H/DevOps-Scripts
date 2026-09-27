@@ -62,11 +62,19 @@ jobs:
           command -v aide >/dev/null || true
 
       # -----------------------------------------------------------------------
-      # Execute the full Bats suite from repo root
+      # Run Bats as an unprivileged user. The container step runs as root so we
+      # can apt-get install packages, but tests like user-management must prove
+      # the script rejects non-root callers (EUID != 0).
       # -----------------------------------------------------------------------
       - name: Run Bats test suite
         shell: bash
         run: |
           set -euo pipefail
           cd "${GITHUB_WORKSPACE}"
-          bats tests/*.bats
+
+          if ! id batsrunner &>/dev/null; then
+            useradd -m -s /bin/bash batsrunner
+          fi
+          chown -R batsrunner:batsrunner "${GITHUB_WORKSPACE}"
+
+          su -s /bin/bash batsrunner -c "cd \"${GITHUB_WORKSPACE}\" && bats tests/*.bats"
