@@ -1,0 +1,3 @@
+# Markdownlint-cli2 settings (picked up by doc-lint.yml / local runs).
+config:
+  MD013: false
