@@ -1,0 +1,86 @@
+# =============================================================================
+# Automated Semantic Releases (Conventional Commits)
+# =============================================================================
+# Release Please reads config from the main branch.
+# Required on main: release-please-config.json, .release-please-manifest.json,
+# version.txt, CHANGELOG.md
+# =============================================================================
+
+name: Semantic Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+
+    steps:
+      # Always align with main — release-please loads manifest/config from main.
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Verify Release Please bootstrap files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in release-please-config.json .release-please-manifest.json version.txt CHANGELOG.md; do
+            if [[ ! -f "${f}" ]]; then
+              echo "::error::Missing ${f} on main. Merge bootstrap files before running semantic release."
+              exit 1
+            fi
+          done
+
+      - name: Run Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          target-branch: main
+
+  release-assets:
+    name: Upload release tarball
+    runs-on: ubuntu-latest
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Package bin, lib, and conf directories
+        run: |
+          set -euo pipefail
+          tar -czf release.tar.gz bin lib conf
+          ls -lh release.tar.gz
+
+      - name: Upload tarball to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release upload "${{ needs.release-please.outputs.tag_name }}" \
+            release.tar.gz \
+            --repo "${{ github.repository }}" \
+            --clobber
