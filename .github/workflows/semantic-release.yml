@@ -1,18 +1,9 @@
 # =============================================================================
 # Automated Semantic Releases (Conventional Commits)
 # =============================================================================
-# Release Please reads release-please-config.json + .release-please-manifest.json,
-# bumps version.txt / CHANGELOG.md, opens a release PR, and publishes GitHub
-# Releases when that PR merges.
-#
-# REQUIRED (one-time, repo admin):
-#   Settings → Actions → General → Workflow permissions → enable
-#   "Allow GitHub Actions to create and approve pull requests"
-#   Without this, GITHUB_TOKEN cannot open the release PR (see workflow error).
-#
-# Commits on main should use Conventional Commits, e.g.:
-#   feat: add backup utility
-#   fix: correct disk-monitor threshold parsing
+# Release Please reads config from the main branch.
+# Required on main: release-please-config.json, .release-please-manifest.json,
+# version.txt, CHANGELOG.md
 # =============================================================================
 
 name: Semantic Release
@@ -21,7 +12,6 @@ on:
   push:
     branches:
       - main
-      - develop
   workflow_dispatch:
 
 permissions:
@@ -38,8 +28,23 @@ jobs:
       tag_name: ${{ steps.release.outputs.tag_name }}
 
     steps:
-      - name: Checkout repository
+      # Always align with main — release-please loads manifest/config from main.
+      - name: Checkout main branch
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Verify Release Please bootstrap files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in release-please-config.json .release-please-manifest.json version.txt CHANGELOG.md; do
+            if [[ ! -f "${f}" ]]; then
+              echo "::error::Missing ${f} on main. Merge bootstrap files before running semantic release."
+              exit 1
+            fi
+          done
 
       - name: Run Release Please
         id: release
@@ -59,8 +64,10 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout main branch
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Package bin, lib, and conf directories
         run: |

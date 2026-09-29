@@ -4,10 +4,7 @@
     ".": {
       "release-type": "simple",
       "package-name": "devops-scripts",
-      "changelog-path": "CHANGELOG.md",
-      "version-file": "version.txt"
+      "changelog-path": "CHANGELOG.md"
     }
-  },
-  "pull-request-title-pattern": "chore${scope}: release${component} ${version}",
-  "include-component-in-tag": false
+  }
 }
