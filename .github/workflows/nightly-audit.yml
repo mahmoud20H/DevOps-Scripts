@@ -1,0 +1,67 @@
+# =============================================================================
+# Scheduled "Nightly" Upstream Dependency Audit
+# =============================================================================
+# Re-runs the same containerized Bats matrix on a cron schedule. Catches upstream
+# package renames/removals (aide, lvm2, bats) before they break production runs.
+# Schedule: every Sunday at 03:00 UTC.
+# =============================================================================
+
+name: Nightly Audit
+
+on:
+  schedule:
+    # Run every Sunday at 03:00 UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+concurrency:
+  group: nightly-audit-${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  bats-in-container:
+    name: Bats in Container
+    runs-on: ubuntu-latest
+
+    # Run every step inside the Ubuntu container as root
+    container:
+      image: ubuntu:latest
+      options: --user root
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Bats and script dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -qq
+          apt-get install -y -qq \
+            bats \
+            lvm2 \
+            aide \
+            git \
+            ca-certificates
+
+          bats --version
+          command -v lvcreate >/dev/null
+          command -v aide >/dev/null || true
+
+      - name: Run Bats test suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "${GITHUB_WORKSPACE}"
+
+          if ! id batsrunner &>/dev/null; then
+            useradd -m -s /bin/bash batsrunner
+          fi
+          chown -R batsrunner:batsrunner "${GITHUB_WORKSPACE}"
+
+          su -s /bin/bash batsrunner -c "cd \"${GITHUB_WORKSPACE}\" && bats tests/*.bats"
