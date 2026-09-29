@@ -98,7 +98,8 @@ Failure after retries?
 
 #### AIDE FIM workflow
 
-*   You can review this post to get more info about these: [stop-checking-logs-manually-automate-linux-security-with-aide](https://medium.com/@mahmoudahmed12492/stop-checking-logs-manually-automate-linux-security-with-aide-2f5df772fdfc)
+* You can review this post for more info:
+  [Automate Linux security with AIDE](https://medium.com/@mahmoudahmed12492/stop-checking-logs-manually-automate-linux-security-with-aide-2f5df772fdfc)
 
 ```text
 ┌────────────────────────────────────────────────────────┐
@@ -215,5 +216,3 @@ Install Package    Generate Config File   Initialize Baseline DB
      ```
 
   4. Review **Top 10 Errors** and **Errors per Hour** in the output.
-
-[aide-medium-post]: https://medium.com/@mahmoudahmed12492/stop-checking-logs-manually-automate-linux-security-with-aide-2f5df772fdfc
