@@ -1,9 +1,18 @@
 # =============================================================================
 # Automated Semantic Releases (Conventional Commits)
 # =============================================================================
-# Release Please opens/updates a release PR from conventional commits (feat:, fix:,
-# etc.), maintains CHANGELOG.md, bumps VERSION, and publishes GitHub Releases.
-# When a release is cut on main, we attach a tarball of bin/, lib/, and conf/.
+# Release Please reads release-please-config.json + .release-please-manifest.json,
+# bumps version.txt / CHANGELOG.md, opens a release PR, and publishes GitHub
+# Releases when that PR merges.
+#
+# REQUIRED (one-time, repo admin):
+#   Settings → Actions → General → Workflow permissions → enable
+#   "Allow GitHub Actions to create and approve pull requests"
+#   Without this, GITHUB_TOKEN cannot open the release PR (see workflow error).
+#
+# Commits on main should use Conventional Commits, e.g.:
+#   feat: add backup utility
+#   fix: correct disk-monitor threshold parsing
 # =============================================================================
 
 name: Semantic Release
@@ -15,7 +24,6 @@ on:
       - develop
   workflow_dispatch:
 
-# Release Please creates tags/releases and opens PRs; needs write access.
 permissions:
   contents: write
   pull-requests: write
@@ -33,21 +41,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # -----------------------------------------------------------------------
-      # Parses conventional commits on main and manages version + CHANGELOG.
-      # "simple" release type suits script-only repos (VERSION + CHANGELOG.md).
-      # Bootstrap: first run may open a PR to add those files—merge it once.
-      # -----------------------------------------------------------------------
       - name: Run Release Please
         id: release
         uses: googleapis/release-please-action@v4
         with:
-          release-type: simple
-          package-name: devops-scripts
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          target-branch: main
 
-  # ---------------------------------------------------------------------------
-  # attach a portable bundle when Release Please publishes a new tag.
-  # ---------------------------------------------------------------------------
   release-assets:
     name: Upload release tarball
     runs-on: ubuntu-latest
