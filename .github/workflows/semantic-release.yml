@@ -12,6 +12,7 @@ on:
   push:
     branches:
       - main
+      - develop
   workflow_dispatch:
 
 # Release Please creates tags/releases and opens PRs; needs write access.
