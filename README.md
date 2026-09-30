@@ -42,7 +42,9 @@ DevOps-Scripts/
 ├── .github/workflows/          # CI/CD pipelines
 │   ├── security-lint.yml               # GitHub Actions workflow for shellcheck & Misconfiguration Scan
 |   ├── doc-lint.yml                    # GitHub Actions workflow for Markdown linting
-    └── automated-tests.yml             # GitHub Actions workflow for automated tests
+|   ├── nightly-audit.yml               # GitHub Actions workflow for nightly audit and security scan
+|   ├── semantic-release.yml            # GitHub Actions workflow for semantic versioning and release
+|   └── automated-tests.yml             # GitHub Actions workflow for automated tests
 │
 └── README.md
 ```
